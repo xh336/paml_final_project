@@ -6,10 +6,10 @@ st.markdown("# Practical Applications of Machine Learning (PAML)")
 
 #############################################
 
-st.markdown("### Homework 0 - Introduction to Streamlit")
+st.markdown("### Homework 1 - End-to-End ML Pipeline 🎈")
 
 #############################################
 
-st.markdown('# Deploy Application')
+st.title('Deploy Application')
 
 #############################################
