@@ -2,11 +2,11 @@ import streamlit as st
 
 #############################################
 
-st.markdown("# Practical Applications of Machine Learning (PAML)")
+st.markdown("# Maching Learning Model for SAT Score Prediction")
 
 #############################################
 
-st.markdown("### Homework 1 - End-to-End ML Pipeline 🎈")
+st.markdown("### Practical Applications of Machine Learning (PAML) Final Project 🎈")
 
 #############################################
 
