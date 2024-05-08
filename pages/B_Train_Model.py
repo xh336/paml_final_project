@@ -309,8 +309,8 @@ if df is not None:
     feature_predict_select = st.selectbox(
         label='Select variable to predict',
         options=list(df.select_dtypes(include='number').columns),
-        key='feature_selectbox',
-        index=8
+        key='feature_selectbox'
+        ## index=8
     )
 
     st.session_state['target'] = feature_predict_select
