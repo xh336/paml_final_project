@@ -7,16 +7,11 @@ import numpy as np
 from sklearn.preprocessing import OrdinalEncoder
 
 feature_lookup = {
-    'longitude':'**longitude** - longitudinal coordinate',
-    'latitude':'**latitude** - latitudinal coordinate',
-    'housing_median_age':'**housing_median_age** - median age of district',
-    'total_rooms':'**total_rooms** - total number of rooms per district',
-    'total_bedrooms':'**total_bedrooms** - total number of bedrooms per district',
-    'population':'**population** - total population of district',
-    'households':'**households** - total number of households per district',
-    'median_income':'**median_income** - median income',
-    'ocean_proximity':'**ocean_proximity** - distance from the ocean',
-    'median_house_value':'**median_house_value**'
+    'gender':'**gender** - female, male',
+    'race_ethnicity':'**race_ethnicity** - group A, B, C, D, E',
+    'parental_level_of_education':'**parental_level_of_education** - some high school, high school, some college, associate\'s degree, bachelor\'s degree, master\'s degree',
+    'lunch':'**total_rooms** - standard, free/reduced',
+    'test_preparation_course':'**test_preparation_course** - none, completed'
 }
 
 #############################################
