@@ -56,17 +56,6 @@ def display_features(df,feature_lookup):
 
 # Checkpoint 2
 def sidebar_filter(df, chart_type, x=None, y=None):
-    """
-    This function renders the feature selection sidebar 
-
-    Input: 
-        - df: pandas dataframe containing dataset
-        - chart_type: the type of selected chart
-        - x: features
-        - y: targets
-    Output: 
-        - list of sidebar filters on features
-    """
     side_bar_data = []
     select_columns = []
     if (x is not None):

@@ -17,19 +17,6 @@ st.title('Train Model')
 
 # Checkpoint 1
 def split_dataset(X, y, number,random_state=45):
-    """
-    This function splits the dataset into the train data and the test data using train_test_split
-
-    Input: 
-        - X: training features
-        - y: training targets
-        - number: the ratio of test samples
-    Output: 
-        - X_train: training features
-        - X_val: test/validation features
-        - y_train: training targets
-        - y_val: test/validation targets
-    """
     X_train = []
     X_val = []
     y_train = []
@@ -93,15 +80,6 @@ class LinearRegression(object) :
     
     # Checkpoint 4: Model training 
     def fit(self, X, Y): 
-        '''
-        Use gradient descent to update the weights for self.num_iterations
-        
-        Input
-            - X: Input features X
-            - Y: True values of housing prices
-        Output: None
-        '''
-        #num_examples, num_features
         self.num_examples, self.num_features = X.shape
 
         # weight, featues X, and output Y initialization 
@@ -146,121 +124,10 @@ class LinearRegression(object) :
             - 'Ridge Regression'
             - 'Lasso Regression'
         '''
-        out_dict = {'Multiple Linear Regression': [],
-                'Polynomial Regression': [],
-                'Ridge Regression': []}
+        out_dict = {'Multiple Linear Regression': []}
         for i in range(len(features)):
             out_dict[model_name] = self.W
         return out_dict
-
-# Multivariate Polynomial Regression
-class PolynomailRegression(LinearRegression):
-    def __init__(self, degree, learning_rate, num_iterations):
-        self.degree = degree
-
-        # invoking the __init__ of the parent class
-        LinearRegression.__init__(self, learning_rate, num_iterations)
-
-    # Helper function
-    def transform(self, X):
-        '''
-        Converts a matrix of features for polynomial  h( x ) = w0 * x^0 + w1 * x^1 + w2 * x^2 + ........+ wn * x^n
-
-        Input:
-            - 
-        Output:
-            -
-        '''
-        try:
-            # coverting 1D to 2D
-            if X.ndim==1:
-                X = X[:,np.newaxis]
-            num_examples, num_features = X.shape
-            features = [np.ones((num_examples, 1))] # for bias, the first column
-            # initialize X_transform
-            for j in range(1, self.degree + 1):
-                # For better understanding see doc: https://docs.python.org/3/library/itertools.html#itertools.combinations_with_replacement
-                for combinations in itertools.combinations_with_replacement(range(num_features), j): # this will give us the combination of features
-                    feature = np.ones(num_examples)
-                    for each_combination in combinations:
-                        feature = feature * X[:,each_combination]
-                    features.append(feature[:, np.newaxis]) # collecting list of arrays each array is the feature
-            # concating the list of feature in each column them
-            X_transform = np.concatenate(features, axis=1)
-        except ValueError as err:
-            st.write({str(err)})
-        return X_transform
-    
-    # Checkpoint 6: Model training
-    def fit(self, X, Y):
-        '''
-        Use gradient descent to update the weights for self.num_iterations
-
-        Input:
-            - X: Input features X
-            - Y: True values of housing prices
-        Output: None
-        '''
-
-        self.num_examples, self.num_features = X.shape
-        X_transform = self.transform(X)
-        X_normalize = self.normalize(X_transform)
-        # X_normalize = LinearRegression.normalize(self, X_transform)
-        self.W = np.ones(X_transform.shape[1]).reshape(-1,1)
-        
-        for _ in range(self.num_iterations):
-            Y_pred = self.predict(X)
-            dW = - (2 * (X_normalize.T).dot(Y - Y_pred) ) / self.num_examples
-            self.W = self.W - self.learning_rate * dW
-            cost= np.sqrt(np.sum(np.power(Y-Y_pred,2))/len(Y_pred)) 
-            self.cost_history.append(cost)
-        return self
-    
-    # Checkpoint 7: Make a prediction with Polynomial Regression model
-    def predict(self, X):
-        '''
-        Make a prediction using coefficients self.W and input features X
-        Y=X*W
-        
-        Input: X is matrix of column-wise features
-        Output: prediction of house price
-        '''
-        X_transform = self.transform(X)
-        X_normalize = LinearRegression.normalize(self, X_transform)
-        prediction = X_normalize.dot(self.W)
-        return prediction
-
-# Ridge Regression 
-class RidgeRegression(LinearRegression): 
-    def __init__(self, learning_rate, num_iterations, l2_penalty): 
-        self.l2_penalty = l2_penalty 
-
-        # invoking the __init__ of the parent class
-        LinearRegression.__init__(self, learning_rate, num_iterations)
-
-    # Checkpoint 8: Update weights in gradient descent 
-    def update_weights(self):      
-        '''
-        Update weights of regression model by computing the 
-        derivative of the RSS + l2_penalty*w cost function with respect to weights
-
-        Input: None
-        Output: None
-        '''
-        self.num_examples, self.num_features = (self.X).shape
-        X_transform = np.append(np.ones((self.num_examples, 1)), self.X, axis=1)
-        Y_pred = self.predict(self.X) 
-        
-        dW = - ( 2 * ( X_transform.T ).dot( self.Y - Y_pred )  +  2 * self.l2_penalty * self.W ) / self.num_examples
-
-        cost = mean_squared_error(self.Y, Y_pred, squared=False)
-        
-        # update weights 
-        self.W = self.W - self.learning_rate * dW 
-
-        # store cost
-        self.cost_history.append(cost)
-        return self
 
 # Helper functions
 def load_dataset(filepath):
@@ -353,20 +220,19 @@ if df is not None:
     test_percentage = ((len(X_val)+len(y_val)) /
                         (len(X_train)+len(X_val)+len(y_train)+len(y_val)))*100
 
-    regression_methods_options = ['Multiple Linear Regression',
-                                  'Polynomial Regression', 
-                                  'Ridge Regression']
+    #regression_methods_options = ['Multiple Linear Regression']
     # Collect ML Models of interests
-    regression_model_select = st.multiselect(
-        label='Select regression model for prediction',
-        options=regression_methods_options,
-    )
-    st.write('You selected the follow models: {}'.format(
+    #regression_model_select = st.multiselect(
+        #label='Select regression model for prediction',
+        #options=regression_methods_options,
+    #)
+    regression_model_select = 'Multiple Linear Regression'
+    st.write('The model used for this application: {}'.format(
         regression_model_select))
 
     # Multiple Linear Regression
-    if (regression_methods_options[0] in regression_model_select):
-        st.markdown('#### ' + regression_methods_options[0])
+    if (regression_model_select == 'Multiple Linear Regression'):
+        st.markdown('#### ' + 'Multiple Linear Regression Training')
 
         # Add parameter options to each regression method
         learning_rate_input = st.text_input(
@@ -394,125 +260,18 @@ if df is not None:
                 multi_reg_model = LinearRegression(learning_rate=multiple_reg_params['alpha'][0], 
                                                    num_iterations=int(multiple_reg_params['num_iterations'][0]))
                 multi_reg_model.fit(X_train, y_train)
-                st.session_state[regression_methods_options[0]] = multi_reg_model
+                st.session_state['Multiple Linear Regression'] = multi_reg_model
             except ValueError as err:
                 st.write({str(err)})
 
-        if regression_methods_options[0] not in st.session_state:
+        if 'Multiple Linear Regression' not in st.session_state:
             st.write('Multiple Linear Regression Model is untrained')
         else:
             st.write('Multiple Linear Regression Model trained')
 
-    # Polynomial Regression
-    if (regression_methods_options[1] in regression_model_select):
-        st.markdown('#### ' + regression_methods_options[1])
-
-        poly_degree = st.number_input(
-            label='Enter the degree of polynomial',
-            min_value=0,
-            max_value=1000,
-            value=3,
-            step=1,
-            key='poly_degree_numberinput'
-        )
-        st.write('You set the polynomial degree to: {}'.format(poly_degree))
-
-        poly_num_iterations_input = st.number_input(
-            label='Enter the number of iterations to run Gradient Descent (seperate with commas)👇',
-            min_value=1,
-            max_value=10000,
-            value=50,
-            step=1,
-            key='poly_num_iter'
-        )
-        st.write('You set the polynomial degree to: {}'.format(poly_num_iterations_input))
-
-        poly_input=[0.001]
-        poly_learning_rate_input = st.text_input(
-            label='Input learning rate 👇',
-            value='0.0001',
-            key='poly_alphas_textinput'
-        )
-        st.write('You select the following alpha value(s): {}'.format(poly_learning_rate_input))
-
-        poly_reg_params = {
-            'num_iterations': poly_num_iterations_input,
-            'alphas': [float(val) for val in poly_learning_rate_input.split(',')],
-            'degree' : poly_degree
-        }
-
-        if st.button('Train Polynomial Regression Model'):
-            # Handle errors
-            try:
-                poly_reg_model = PolynomailRegression(poly_reg_params['degree'], 
-                                                      poly_reg_params['alphas'][0], 
-                                                      poly_reg_params['num_iterations'])
-                poly_reg_model.fit(X_train, y_train)
-                st.session_state[regression_methods_options[1]] = poly_reg_model
-            except ValueError as err:
-                st.write({str(err)})
-
-        if regression_methods_options[1] not in st.session_state:
-            st.write('Polynomial Regression Model is untrained')
-        else:
-            st.write('Polynomial Regression Model trained')
-
-    # Ridge Regression
-    if (regression_methods_options[2] in regression_model_select):
-        st.markdown('#### ' + regression_methods_options[2])
-
-        # Add parameter options to each regression method
-        ridge_l2_penalty_input = st.text_input(
-            label='Enter the l2 penalty (0-1)👇',
-            value='0.5',
-            key='ridge_l2_penalty_textinput'
-        )
-        st.write('You select the following l2 penalty value(s): {}'.format(ridge_l2_penalty_input))
-
-        ridge_num_iterations_input = st.text_input(
-            label='Enter the number of iterations to run Gradient Descent (seperate with commas)👇',
-            value='100',
-            key='ridge_num_iter'
-        )
-        st.write('You set the number of iterations to: {}'.format(ridge_num_iterations_input))
-
-        ridge_alphas = st.text_input(
-            label='Input learning rate 👇',
-            value='0.0001',
-            key='ridge_lr_textinput'
-        )
-        st.write('You select the following learning rate: {}'.format(ridge_alphas))
-
-        ridge_params = {
-            'num_iterations': [int(val) for val in ridge_num_iterations_input.split(',')],
-            'learning_rate': [float(val) for val in ridge_alphas.split(',')],
-            'l2_penalty':[float(val) for val in ridge_l2_penalty_input.split(',')]
-        }
-        if st.button('Train Ridge Regression Model'):
-            # Train ridge on all feature --> feature selection
-            # Handle Errors
-            try:
-                ridge_model = RidgeRegression(learning_rate=ridge_params['learning_rate'][0],
-                                           num_iterations=ridge_params['num_iterations'][0],
-                                           l2_penalty=ridge_params['l2_penalty'][0])
-                ridge_model.fit(X_train, y_train)
-                st.session_state[regression_methods_options[2]] = ridge_model
-            except ValueError as err:
-                st.write({str(err)})
-
-        if regression_methods_options[2] not in st.session_state:
-            st.write('Ridge Model is untrained')
-        else:
-            st.write('Ridge Model trained')
-
-    st.markdown('#### Inspect fitted model')
     # Plot model
-    plot_model = st.selectbox(
-        label='Select model to plot',
-        options=regression_model_select,
-        key='plot_model_select'
-    )
-
+    st.markdown('##### ' + 'Plot of Real vs Prediction')
+    plot_model = 'Multiple Linear Regression'
     # Select input features
     feature_plot_select = st.selectbox(
         label='Select feature to plot',
@@ -550,42 +309,19 @@ if df is not None:
     
     # Store models
     trained_models={}
-    for model_name in regression_model_select:
-        if(model_name in st.session_state):
-            trained_models[model_name] = st.session_state[model_name]
+    trained_models['Multiple Linear Regression'] = st.session_state['Multiple Linear Regression']
 
     # Inspect Regression coefficients
-    st.markdown('## Inspect model coefficients')
-
-    # Select multiple models to inspect
-    inspect_models = st.multiselect(
-        label='Select model',
-        options=regression_model_select,
-        key='inspect_multiselect'
-    )
-    st.write('You selected the {} models'.format(inspect_models))
-    
+    st.markdown('##### Inspect model coefficients')
     models = {}
     weights_dict = {}
-    if(inspect_models):
-        st.write('You are in')
-        for model_name in inspect_models:
-            if(model_name in trained_models):
-                models[model_name] = st.session_state[model_name]
-                weights_dict = models[model_name].get_weights(model_name, feature_input_select)
-        st.write(weights_dict)
-
-    # Inspect model cost
-    st.markdown('## Inspect model cost')
+    models['Multiple Linear Regression'] = st.session_state['Multiple Linear Regression']
+    weights_dict = models['Multiple Linear Regression'].get_weights('Multiple Linear Regression', feature_input_select)
+    st.write(weights_dict)
 
     # Select multiple models to inspect
-    inspect_model_cost = st.selectbox(
-        label='Select model',
-        options=regression_model_select,
-        key='inspect_cost_multiselect'
-    )
-
-    st.write('You selected the {} model'.format(inspect_model_cost))
+    st.markdown('##### Inspect model cost')
+    inspect_model_cost = 'Multiple Linear Regression'
 
     if(inspect_model_cost):
         try:
@@ -608,4 +344,4 @@ if df is not None:
         except Exception as e:
             print(e)
 
-    st.write('Continue to Test Model')
+    st.write('Continue to Evaluation Methods')
