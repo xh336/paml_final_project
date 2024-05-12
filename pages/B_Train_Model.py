@@ -274,7 +274,7 @@ def load_dataset(filepath):
     '''
     try:
         data = pd.read_csv(filepath)
-        st.session_state['house_df'] = data
+        st.session_state['score_df'] = data
     except ValueError as err:
             st.write({str(err)})
     return data
@@ -285,8 +285,8 @@ random.seed(10)
 df=None
 
 filename = 'datasets/study_performance.csv'
-if('house_df' in st.session_state):
-    df = st.session_state['house_df']
+if('score_df' in st.session_state):
+    df = st.session_state['score_df']
 else:
     if(filename):
         df = load_dataset(filename)

@@ -219,14 +219,14 @@ def load_dataset(filepath):
     Output: pandas dataframe df
     """
     data = pd.read_csv(filepath)
-    st.session_state['house_df'] = data
+    st.session_state['score_df'] = data
     return data
 
 random.seed(10)
 ###################### FETCH DATASET #######################
 df = None
-if('house_df' in st.session_state):
-    df = st.session_state['house_df']
+if('score_df' in st.session_state):
+    df = st.session_state['score_df']
 else:
     filepath = st.file_uploader('Upload a Dataset', type=['csv', 'txt'])
     if(filepath):
