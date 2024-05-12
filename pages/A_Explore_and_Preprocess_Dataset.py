@@ -315,7 +315,7 @@ def compute_correlation(df, features):
 
     Input: 
         - df: pandas dataframe 
-        - features: a list of feature name (string), e.g. ['age','height']
+        - features: a list of feature name (string), e.g. ['gender','lunch']
     Output: 
         - correlation: correlation coefficients between one or more features
         - summary statements: a list of summary strings where each of it is in the format: 
@@ -595,7 +595,7 @@ if df is not None:
     )
             
     # Compute Descriptive Statistics including mean, median, min, max
-    display_stats, _ = compute_descriptive_stats(df, stats_feature_select, stats_select)
+    display_stats, display_dict = compute_descriptive_stats(df, stats_feature_select, stats_select)
 
     ###################### CORRELATION ANALYSIS #######################
     st.markdown("### 10. Correlation Analysis")
