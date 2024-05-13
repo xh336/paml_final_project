@@ -241,7 +241,7 @@ if df is not None:
         st.write('You selected the following metrics: {}'.format(metric_select))
 
     regression_methods_options = ['Multiple Linear Regression',
-                                  'Polynomial Regression', 'Ridge Regression']
+                                  'Polynomial Regression', 'Ridge Regression', 'Lasso Regression']
     trained_models = [
         model for model in regression_methods_options if model in st.session_state]
     st.session_state['trained_models'] = trained_models
