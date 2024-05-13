@@ -22,14 +22,22 @@ st.markdown("This application utilizes Machine Learning Models to create Standar
 
 st.markdown("### Introduction")
 
-st.markdown("""This project aims to explore the complex factors affecting student academic performance \
-            by developing a predictive model based on demographic variables. The significance of this \
-            study lies in its potential to enhance educational equity and access by identifying key \
-            predictors of academic outcomes. This can help in formulating targeted interventions for \
-            students needing additional support. Utilizing machine learning techniques, such as regression \
-            and classification, the model will not only handle complex variable interactions but also offer \
-            interpretable insights, focusing particularly on demographic influences to reveal subtle but \
-            impactful relationships in student performance data.""")
+st.markdown("""This project aims to explore the complex factors affecting student academic performance \
+
+            by developing a predictive model based on demographic variables. The significance of this \
+
+            study lies in its potential to enhance educational equity and access by identifying key \
+
+            predictors of academic outcomes. This can help in formulating targeted interventions for \
+
+            students needing additional support. Utilizing machine learning techniques, such as regression \
+
+            and classification, the model will not only handle complex variable interactions but also offer \
+
+            interpretable insights, focusing particularly on demographic influences to reveal subtle but \
+
+            impactful relationships in student performance data.""")
+
 
 st.markdown("### Instructions")
 
@@ -43,9 +51,8 @@ input features of 1,000 sand their standardized test scores (writing, reading, m
 - Race/Ethnicity: A, B, C or D
 - Lunch: Free/reduced or Standard
 - Test preparation course: None or Completed
-- Parental level of education: Some High School, High School, Some College, Associate's Degree, Bachelor's Dgree'r's Degree
-- re:  Score 0 :re:M:, Score:g Score: 0 - 100, :0
-- SAT Writing Score: 0 - 100
+- Parental level of education: Some High School, High School, Some College, Associate's Degree, Bachelor's Degree's, Master's Degree
+- Math Score: 0 - 100, Reading Score: 0 - 100, Writing Score: 0 - 100
 """)
 
 st.markdown(""" **This web application will allow you to:** 
