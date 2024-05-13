@@ -407,7 +407,7 @@ if df is not None:
                                                       poly_reg_params['alphas'][0], 
                                                       poly_reg_params['num_iterations'])
                 poly_reg_model.fit(X_train, y_train)
-                st.session_state[regression_methods_options[1]] = poly_reg_model
+                st.session_state[regression_methods_options[0]] = poly_reg_model
             except ValueError as err:
                 st.write({str(err)})
 
