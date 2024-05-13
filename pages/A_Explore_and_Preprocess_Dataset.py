@@ -34,7 +34,7 @@ def load_dataset(filepath):
     """
     data=None
     data = pd.read_csv(filepath)
-    st.session_state['score_df'] = data
+    st.session_state['house_df'] = data
     return data
 
 # Helper Function
@@ -118,7 +118,7 @@ def remove_features(df,removed_features):
     Output: pandas dataframe df
     """
     df = df.drop(columns=removed_features)
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df
 
 # Checkpoint 6
@@ -136,7 +136,7 @@ def one_hot_encode_feature(df, feature):
     df = pd.concat([df, one_hot_cols], axis=1)
     
     #remove the original column
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df
 
 # Checkpoint 7
@@ -158,7 +158,7 @@ def integer_encode_feature(df, feature):
     
     #remove the original column
     #df.drop(feature,axis=1,inplace=True)
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df
 
 # Checkpoint 8
@@ -190,7 +190,7 @@ def scale_features(df, features, scaling_method):
             df[f+'_log']=np.log2(df[f]+0.0000001)
             
     #st.write(df)
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df
 
 # Checkpoint - 9
@@ -223,7 +223,7 @@ def create_feature(df, math_select, math_feature_select, new_feature_name):
         df[new_feature_name] = np.ceil(df[math_feature_select])
     else:
         df[new_feature_name] = np.floor(df[math_feature_select])
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df
 
 # Checkpoint - 10
@@ -253,7 +253,7 @@ def remove_outliers(df, feature, outlier_removal_method=None):
         upper_bound = df[feature].mean() + 3 * df[feature].std()
         df = df[(df[feature] > lower_bound) & (df[feature] < upper_bound)]
         df.dropna()
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df, lower_bound, upper_bound
 
 ## Checkpoint - 11
@@ -326,8 +326,8 @@ def compute_correlation(df, features):
 df=None
 
 filename = 'datasets/study_performance.csv'
-if('score_df' in st.session_state):
-    df = st.session_state['score_df']
+if('house_df' in st.session_state):
+    df = st.session_state['house_df']
 else:
     if(filename):
         df = load_dataset(filename)
