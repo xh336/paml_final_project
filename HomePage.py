@@ -44,7 +44,7 @@ st.markdown("### Instructions")
 st.markdown("""
             
 The example dataset is a simulated dataset updated in 2024 on Kaggle. It includes all eight \
-input features of 1,000 sand their standardized test scores (writing, reading, math scores. 
+input features of 1,000 sand their standardized test scores (writing, reading, math scores). 
 
 **The user would input these features:** 
 - Gender: Male or Female
