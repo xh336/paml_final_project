@@ -43,9 +43,8 @@ input features of 1,000 sand their standardized test scores (writing, reading, m
 - Race/Ethnicity: A, B, C or D
 - Lunch: Free/reduced or Standard
 - Test preparation course: None or Completed
-- Parental level of education: Some High School, High School, Some College, Associate's Degree, Bachelor's Degree, Mastere
-egreeffeat*The  
-- ures:re:Math0 - 100 Sc- 100 10Readin 0 - 100re:0
+- Parental level of education: Some High School, High School, Some College, Associate's Degree, Bachelor's Dgree'r's Degree
+- re:  Score 0 :re:M:, Score:g Score: 0 - 100, :0
 - SAT Writing Score: 0 - 100
 """)
 
