@@ -7,16 +7,11 @@ import numpy as np
 from sklearn.preprocessing import OrdinalEncoder
 
 feature_lookup = {
-    'longitude':'**longitude** - longitudinal coordinate',
-    'latitude':'**latitude** - latitudinal coordinate',
-    'housing_median_age':'**housing_median_age** - median age of district',
-    'total_rooms':'**total_rooms** - total number of rooms per district',
-    'total_bedrooms':'**total_bedrooms** - total number of bedrooms per district',
-    'population':'**population** - total population of district',
-    'households':'**households** - total number of households per district',
-    'median_income':'**median_income** - median income',
-    'ocean_proximity':'**ocean_proximity** - distance from the ocean',
-    'median_house_value':'**median_house_value**'
+    'gender':'**gender** - female, male',
+    'race_ethnicity':'**race_ethnicity** - group A, B, C, D, E',
+    'parental_level_of_education':'**parental_level_of_education** - some high school, high school, some college, associate\'s degree, bachelor\'s degree, master\'s degree',
+    'lunch':'**total_rooms** - standard, free/reduced',
+    'test_preparation_course':'**test_preparation_course** - none, completed'
 }
 
 #############################################
@@ -39,7 +34,7 @@ def load_dataset(filepath):
     """
     data=None
     data = pd.read_csv(filepath)
-    st.session_state['house_df'] = data
+    st.session_state['score_df'] = data
     return data
 
 # Helper Function
@@ -61,17 +56,6 @@ def display_features(df,feature_lookup):
 
 # Checkpoint 2
 def sidebar_filter(df, chart_type, x=None, y=None):
-    """
-    This function renders the feature selection sidebar 
-
-    Input: 
-        - df: pandas dataframe containing dataset
-        - chart_type: the type of selected chart
-        - x: features
-        - y: targets
-    Output: 
-        - list of sidebar filters on features
-    """
     side_bar_data = []
     select_columns = []
     if (x is not None):
@@ -134,7 +118,7 @@ def remove_features(df,removed_features):
     Output: pandas dataframe df
     """
     df = df.drop(columns=removed_features)
-    st.session_state['house_df'] = df
+    st.session_state['score_df'] = df
     return df
 
 # Checkpoint 6
@@ -152,8 +136,7 @@ def one_hot_encode_feature(df, feature):
     df = pd.concat([df, one_hot_cols], axis=1)
     
     #remove the original column
-    #df.drop(feature,axis=1,inplace=True)
-    st.session_state['house_df'] = df
+    st.session_state['score_df'] = df
     return df
 
 # Checkpoint 7
@@ -175,7 +158,7 @@ def integer_encode_feature(df, feature):
     
     #remove the original column
     #df.drop(feature,axis=1,inplace=True)
-    st.session_state['house_df'] = df
+    st.session_state['score_df'] = df
     return df
 
 # Checkpoint 8
@@ -207,7 +190,7 @@ def scale_features(df, features, scaling_method):
             df[f+'_log']=np.log2(df[f]+0.0000001)
             
     #st.write(df)
-    st.session_state['house_df'] = df
+    st.session_state['score_df'] = df
     return df
 
 # Checkpoint - 9
@@ -240,7 +223,7 @@ def create_feature(df, math_select, math_feature_select, new_feature_name):
         df[new_feature_name] = np.ceil(df[math_feature_select])
     else:
         df[new_feature_name] = np.floor(df[math_feature_select])
-    st.session_state['house_df'] = df
+    st.session_state['score_df'] = df
     return df
 
 # Checkpoint - 10
@@ -270,7 +253,7 @@ def remove_outliers(df, feature, outlier_removal_method=None):
         upper_bound = df[feature].mean() + 3 * df[feature].std()
         df = df[(df[feature] > lower_bound) & (df[feature] < upper_bound)]
         df.dropna()
-    st.session_state['house_df'] = df
+    st.session_state['score_df'] = df
     return df, lower_bound, upper_bound
 
 ## Checkpoint - 11
@@ -320,7 +303,7 @@ def compute_correlation(df, features):
 
     Input: 
         - df: pandas dataframe 
-        - features: a list of feature name (string), e.g. ['age','height']
+        - features: a list of feature name (string), e.g. ['gender','lunch']
     Output: 
         - correlation: correlation coefficients between one or more features
         - summary statements: a list of summary strings where each of it is in the format: 
@@ -343,8 +326,8 @@ def compute_correlation(df, features):
 df=None
 
 filename = 'datasets/study_performance.csv'
-if('house_df' in st.session_state):
-    df = st.session_state['house_df']
+if('score_df' in st.session_state):
+    df = st.session_state['score_df']
 else:
     if(filename):
         df = load_dataset(filename)
@@ -600,7 +583,7 @@ if df is not None:
     )
             
     # Compute Descriptive Statistics including mean, median, min, max
-    display_stats, _ = compute_descriptive_stats(df, stats_feature_select, stats_select)
+    display_stats, display_dict = compute_descriptive_stats(df, stats_feature_select, stats_select)
 
     ###################### CORRELATION ANALYSIS #######################
     st.markdown("### 10. Correlation Analysis")

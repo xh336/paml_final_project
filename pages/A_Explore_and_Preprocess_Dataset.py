@@ -136,7 +136,6 @@ def one_hot_encode_feature(df, feature):
     df = pd.concat([df, one_hot_cols], axis=1)
     
     #remove the original column
-    #df.drop(feature,axis=1,inplace=True)
     st.session_state['score_df'] = df
     return df
 

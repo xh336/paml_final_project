@@ -175,21 +175,18 @@ if df is not None:
     st.session_state['target'] = feature_predict_select
 
     # Select input features
+    all_features = [f for f in list(df.columns) if f != feature_predict_select]
     feature_input_select = st.multiselect(
         label='Select features for regression input',
-        options=[f for f in list(df.select_dtypes(
-            include='number').columns) if f != feature_predict_select],
+        options=all_features,
         key='feature_multiselect'
     )
-
     st.session_state['feature'] = feature_input_select
 
-    st.write('You selected input {} and output {}'.format(
-        feature_input_select, feature_predict_select))
-
+    st.write('You selected input {} and output {}'.format(feature_input_select, feature_predict_select))
     df = df.dropna()
-    X = df.loc[:, df.columns.isin(feature_input_select)]
-    Y = df.loc[:, df.columns.isin([feature_predict_select])]
+    X = df.loc[:,df.columns.isin(feature_input_select)]
+    Y = df.loc[:,df.columns.isin([feature_predict_select])]
 
     # Split train/test
     st.markdown('## Split dataset into Train/Test sets')
