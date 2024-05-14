@@ -1,7 +1,7 @@
 import numpy as np                  
 import pandas as pd                  
 import streamlit as st                 
-from pages.B_Train_Model import split_dataset
+from pages.B_Train_Base_Model import split_dataset
 import random
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -193,7 +193,7 @@ def restore_data(df):
         feature_predict_select = st.selectbox(
             label='Select variable to predict',
             options=list(df.select_dtypes(include='number').columns),
-            key='feature_selectbox',
+            key=f"{df}",
             #index=8
         )
 
@@ -204,7 +204,8 @@ def restore_data(df):
             label='Select features for regression input',
             options=[f for f in list(df.select_dtypes(
                 include='number').columns) if f != feature_predict_select],
-            key='feature_multiselect'
+            #key='feature_multiselect'
+            key=f"{df}multi"
         )
 
         st.session_state['feature'] = feature_input_select
@@ -224,7 +225,7 @@ def restore_data(df):
         st.markdown(
             '### Enter the percentage of test data to use for training the model')
         number = st.number_input(
-            label='Enter size of test set (X%)', min_value=0, max_value=100, value=30, step=1)
+            label='Enter size of test set (X%)', min_value=0, max_value=100, value=30, step=1,key=f"{df}num")
 
         X_train, X_val, y_train, y_val = split_dataset(X, Y, number)
         st.write('Restored training and test data ...')
