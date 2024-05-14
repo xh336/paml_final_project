@@ -5,6 +5,9 @@ from pages.B_Train_Model import split_dataset
 import random
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from sklearn.model_selection import cross_val_score, KFold
+from sklearn.metrics import make_scorer
+import plotly.express as px
 
 st.title('Model Testing')
 
@@ -28,15 +31,6 @@ def rmse(y_true, y_pred):
 
 #Checkpoint 10 mean absolute error
 def mae(y_true, y_pred):
-    """
-    Measures the absolute difference between predicted and actual values
-
-    Input:
-        - y_true: true targets
-        - y_pred: predicted targets
-    Output:
-        - mean absolute error
-    """
     error=0
     error = (np.sum(np.abs(y_pred-y_true))) / len(y_true)
     return error
@@ -130,7 +124,33 @@ def plot_learning_curve(X_train, X_val, y_train, y_val, trained_model, metrics, 
         df[metric_fn.__name__ + " Training Set"] = train_errors
         df[metric_fn.__name__ + " Validation Set"] = val_errors
     return fig, df
-
+def perform_cross_validation(X,y,model,n_folds,metrics):
+    kf = KFold(n_splits=n_folds, shuffle=True, random_state=10)
+    cv_results = {metric: [] for metric in metrics}
+    for train_index, test_index in kf.split(X):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        for metric in metrics:
+            score = METRICS_MAP[metric](y_test, y_pred)
+            cv_results[metric].append(score)
+    cv_results = {metric: np.mean(scores) for metric, scores in cv_results.items()}
+    return cv_results
+def plot_residuals(y_true, y_pred, model_name):
+    if len(y_true.shape) > 1:
+        y_true = y_true.flatten()
+    if len(y_pred.shape) > 1:
+        y_pred = y_pred.flatten()
+    residuals = y_true -  y_pred
+    fig = px.scatter(x=y_pred, y=residuals, labels={'x': 'Predicted Values', 'y': 'Residuals'},
+                     title=f'Residual Plot for {model_name}')
+    fig.add_hline(y=0, line_dash="dash", line_color="red")
+    fig.update_layout(xaxis_title='Predicted Values',
+                      yaxis_title='Residuals',
+                      title=f'Residuals Plot for {model_name}')
+    return fig
+    
 # Helper function
 def restore_data(df):
     """
@@ -158,9 +178,10 @@ def restore_data(df):
         X_val = st.session_state['X_val']
         y_val = st.session_state['y_val']
         st.write('Restored test data ...')
-    if('target' in st.session_state):
-        feature_predict_select = st.session_state['target']
-        st.write('Restored target ...')
+        #fix below
+    #if('target' in st.session_state):
+        #feature_predict_select = st.session_state['target']
+        #st.write('Restored target ...')
     if('feature' in st.session_state):
         feature_input_select = st.session_state['feature']
         st.write('Restored feature input ...')
@@ -236,7 +257,7 @@ if df is not None:
     # Restore dataset splits
     X_train, X_val, y_train, y_val = restore_data(df)
 
-    st.markdown("## Get Performance Metrics")
+    st.markdown("## Performance Evaluation")
     metric_options = ['mean_absolute_error',
                       'root_mean_squared_error', 'r2_score']
     
@@ -250,7 +271,7 @@ if df is not None:
         st.write('You selected the following metrics: {}'.format(metric_select))
 
     regression_methods_options = ['Multiple Linear Regression',
-                                  'Polynomial Regression', 'Ridge Regression']
+                                  'Polynomial Regression', 'Ridge Regression', 'Lasso Regression']
     trained_models = [
         model for model in regression_methods_options if model in st.session_state]
     st.session_state['trained_models'] = trained_models
@@ -261,44 +282,67 @@ if df is not None:
         options=trained_models
     )
 
-    plot_options = ['Learning Curve', 'Metric Results']
+    #plot_options = ['Learning Curve', 'Metric Results']
 
-    review_plot = st.multiselect(
-        label='Select plot option(s)',
-        options=plot_options
-    )
+    #review_plot = st.multiselect(
+        #label='Select plot option(s)',
+        #options=plot_options
+    #)
     
-    st.write('You selected the following models for evaluation: {}'.format(model_select))
-    if (model_select and review_plot):
+    #st.write('You selected the following models for evaluation: {}'.format(model_select))
+    #if (model_select and review_plot):
 
-        eval_button = st.button('Evaluate your selected regression models')
-
-        if eval_button:
-            st.session_state['eval_button_clicked'] = eval_button
-
-        if 'eval_button_clicked' in st.session_state and st.session_state['eval_button_clicked']:
-
-            if 'Learning Curve' in review_plot:
-                for model in model_select:
-                    trained_model = st.session_state[model]
-                    fig, df = plot_learning_curve(
-                        X_train, X_val, y_train, y_val, trained_model, metric_select, model)
-                    st.plotly_chart(fig)
-
-            if 'Metric Results' in review_plot:
-                models = [st.session_state[model]
-                          for model in model_select]
-
-                train_result_dict = {}
-                val_result_dict = {}
-                for idx, model in enumerate(models):
-                    train_result_dict[model_select[idx]] = compute_eval_metrics(
+    if st.button('Evaluate your selected regression models'):
+        for model in model_select:
+            models = [st.session_state[model] 
+                      for model in model_select]
+            train_result_dict = {}
+            val_result_dict = {}
+            for idx, model in enumerate(models):
+                train_result_dict[model_select[idx]] = compute_eval_metrics(
                         X_train, y_train, model, metric_select)
-                    val_result_dict[model_select[idx]] = compute_eval_metrics(
+                val_result_dict[model_select[idx]] = compute_eval_metrics(
                         X_val, y_val, model, metric_select)
 
-                st.markdown('### Predictions on the training dataset')
-                st.dataframe(train_result_dict)
-
-                st.markdown('### Predictions on the validation dataset')
-                st.dataframe(val_result_dict)
+            st.markdown('### Predictions on the training dataset')
+            st.dataframe(train_result_dict)
+            st.markdown('### Predictions on the validation dataset')
+            st.dataframe(val_result_dict)
+            
+    st.markdown("### Learning Curve")
+    if st.button('Plot Learning Curve'):
+        for model in model_select:
+            trained_model = st.session_state[model]
+            fig, df = plot_learning_curve(X_train, X_val, y_train, y_val, trained_model, metric_select, model)
+            st.plotly_chart(fig)
+ 
+    st.markdown("### Cross-Validation Evaluation")
+    n_folds = st.number_input('Select Number of Cross-Validation Folds', min_value=2, max_value=20, value=5, step=1)
+    if st.button('Perform Cross-validation'):
+        if model_select:
+            cv_results = {}
+            for model_name in model_select:
+                trained_model = st.session_state[model_name]
+                cv_scores = perform_cross_validation(X_train, y_train, trained_model, n_folds, metric_select)
+                cv_results[model_name] = cv_scores
+            st.markdown('#### Cross-validation Results')
+            for model_name, scores in cv_results.items():
+                st.write(f"**{model_name}**")
+                for metric, score in scores.items():
+                    st.write(f"{metric}: {score:.4f}")
+    st.markdown("### Residual Plot Visualization")
+    #residual_model_select = st.multiselect(
+                    #'Select Regression Models For Residual Plot',
+                    #options=trained_models,
+                    #key='res_select'
+            #)
+    if st.button('Generate Residual Plot', key = 'res_plot'):
+        for model_name in model_select:
+            trained_model = st.session_state[model_name]
+            y_pred_train = trained_model.predict(X_train)
+            y_pred_val = trained_model.predict(X_val)
+            fig_train = plot_residuals(y_train, y_pred_train, f'{model_name} (Training Data)')
+            st.plotly_chart(fig_train, use_container_width=True)
+            fig_val = plot_residuals(y_val, y_pred_val, f'{model_name} (Validation Data)')
+            st.plotly_chart(fig_val, use_container_width=True)
+               

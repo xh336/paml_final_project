@@ -11,7 +11,7 @@ import math
 
 #############################################
 
-st.title('Train Model')
+st.title('Train Comparison Models')
 
 #############################################
 
@@ -308,13 +308,12 @@ if df is not None:
     st.session_state['target'] = feature_predict_select
 
     # Select input features
+    all_features = [f for f in list(df.columns) if f != feature_predict_select]
     feature_input_select = st.multiselect(
         label='Select features for regression input',
-        options=[f for f in list(df.select_dtypes(
-            include='number').columns) if f != feature_predict_select],
+        options=all_features,
         key='feature_multiselect'
     )
-
     st.session_state['feature'] = feature_input_select
 
     st.write('You selected input {} and output {}'.format(
@@ -408,7 +407,7 @@ if df is not None:
                                                       poly_reg_params['alphas'][0], 
                                                       poly_reg_params['num_iterations'])
                 poly_reg_model.fit(X_train, y_train)
-                st.session_state[regression_methods_options[1]] = poly_reg_model
+                st.session_state[regression_methods_options[0]] = poly_reg_model
             except ValueError as err:
                 st.write({str(err)})
 

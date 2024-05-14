@@ -11,7 +11,7 @@ import math
 
 #############################################
 
-st.title('Train Model')
+st.title('Train Base Model')
 
 #############################################
 
@@ -141,7 +141,7 @@ def load_dataset(filepath):
     '''
     try:
         data = pd.read_csv(filepath)
-        st.session_state['score_df'] = data
+        st.session_state['house_df'] = data
     except ValueError as err:
             st.write({str(err)})
     return data
@@ -152,8 +152,8 @@ random.seed(10)
 df=None
 
 filename = 'datasets/study_performance.csv'
-if('score_df' in st.session_state):
-    df = st.session_state['score_df']
+if('house_df' in st.session_state):
+    df = st.session_state['house_df']
 else:
     if(filename):
         df = load_dataset(filename)
@@ -341,4 +341,4 @@ if df is not None:
         except Exception as e:
             print(e)
 
-    st.write('Continue to Evaluation Methods')
+    st.write('Continue to Evaluation Metrics')

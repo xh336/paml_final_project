@@ -11,7 +11,7 @@ import math
 
 #############################################
 
-st.title('Train Model')
+st.title('Train Comparison Models')
 
 #############################################
 
