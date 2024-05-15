@@ -476,4 +476,4 @@ if df is not None:
         except Exception as e:
             print(e)
 
-    st.write('Continue to Test Model')
+    st.write('Continue to Evaluation')

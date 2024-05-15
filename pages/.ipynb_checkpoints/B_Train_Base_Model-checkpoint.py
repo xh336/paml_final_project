@@ -256,4 +256,4 @@ if df is not None:
         except Exception as e:
             print(e)
 
-    st.write('Continue to Evaluation Metrics')
+    st.write('Continue to Evaluation')

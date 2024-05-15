@@ -197,7 +197,6 @@ if df is not None:
     )
 
     if st.button('Evaluate your selected regression models'):
-        for model in model_select:
             models = [st.session_state[model] 
                       for model in model_select]
             train_result_dict = {}
