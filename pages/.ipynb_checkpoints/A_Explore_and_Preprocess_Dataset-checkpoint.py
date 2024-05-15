@@ -22,39 +22,17 @@ st.markdown('# Explore Dataset')
 
 st.markdown('### Import Dataset')
 
-# Checkpoint 1
 def load_dataset(filepath):
-    """
-    This function uses the filepath (string) a .csv file locally on a computer 
-    to import a dataset with pandas read_csv() function. Then, store the 
-    dataset in session_state.
-
-    Input: data is the filename or path to file (string); open file using pd.read_csv
-    Output: pandas dataframe df
-    """
     data=None
     data = pd.read_csv(filepath)
-    st.session_state['score_df'] = data
+    st.session_state['house_df'] = data
     return data
-
-# Helper Function
 def display_features(df,feature_lookup):
-    """
-    This function displayes feature names and descriptions (from feature_lookup and dataset columns).
-    
-    Inputs:
-    - df (pandas.DataFrame): The input DataFrame to be whose features to be displayed.
-    - feature_lookup (dict): A dictionary containing the descriptions for the features.
-    
-    Outputs: None
-    """
     for idx, col in enumerate(df.columns):
         if col in feature_lookup:
             st.markdown('Feature %d - %s'%(idx, feature_lookup[col]))
         else:
             st.markdown('Feature %d - %s'%(idx, col))
-
-# Checkpoint 2
 def sidebar_filter(df, chart_type, x=None, y=None):
     side_bar_data = []
     select_columns = []
@@ -79,22 +57,7 @@ def sidebar_filter(df, chart_type, x=None, y=None):
         side_bar_data.append(f)
 
     return side_bar_data
-
-# Checkpoint 3
 def summarize_missing_data(df, top_n=3):
-    """
-    This function summarizes missing values in the dataset
-
-    Input: 
-        - df: the pandas dataframe
-        - top_n: top n features with missing values, default value is 3
-    Output: 
-        - a dictionary containing the following keys and values: 
-            - 'num_categories': counts the number of features that have missing values
-            - 'average_per_category': counts the average number of missing values across features
-            - 'total_missing_values': counts the total number of missing values in the dataframe
-            - 'top_missing_categories': lists the top n features with missing values
-    """
     out_dict = {'num_categories': 0,
                 'average_per_category': 0,
                 'total_missing_values': 0,
@@ -108,72 +71,23 @@ def summarize_missing_data(df, top_n=3):
     out_dict['total_missing_values'] = df.isna().sum().sum()
     out_dict['top_missing_categories'] = df.columns[max_idxs[:top_n]].to_numpy()
     return out_dict
-
-# Checkpoint 4
 def remove_features(df,removed_features):
-    """
-    Remove the features in removed_features (list) from the input pandas dataframe df. 
-
-    Input: df is dataset in pandas dataframe
-    Output: pandas dataframe df
-    """
     df = df.drop(columns=removed_features)
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df
-
-# Checkpoint 6
 def one_hot_encode_feature(df, feature):
-    """
-    This function performs one-hot-encoding on the given features
-
-    Input: 
-        - df: the pandas dataframe
-        - feature: the feature(s) to perform one-hot-encoding
-    Output: 
-        - df: dataframe with one-hot-encoded feature
-    """
     one_hot_cols = pd.get_dummies(df[[feature]], prefix=feature, prefix_sep='_',dummy_na=True)
     df = pd.concat([df, one_hot_cols], axis=1)
-    
-    #remove the original column
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df
-
-# Checkpoint 7
 def integer_encode_feature(df, feature):
-    """
-    This function performs integer-encoding on the given features
-
-    Input: 
-        - df: the pandas dataframe
-        - feature: the feature(s) to perform integer-encoding
-    Output: 
-        - df: dataframe with integer-encoded feature
-    """
     enc = OrdinalEncoder()
-    
-    #create a new column for integer-encoding named "<feature>_int"
-    #integer is assigned by alphabetical order
-    df.insert(len(df.columns), feature+'_int', enc.fit_transform(df[[feature]]))
-    
+    df.insert(len(df.columns), feature+'_int', enc.fit_transform(df[[feature]]))   
     #remove the original column
     #df.drop(feature,axis=1,inplace=True)
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df
-
-# Checkpoint 8
 def scale_features(df, features, scaling_method): 
-    """
-    Use the scaling_method to transform numerical features in the dataset df. 
-
-    Input: 
-        - Features X
-        - Scaling method is a string; Options include {'Standardarization', 'Normalization', 'Log'}
-    Output: 
-        - Standarization: X_new = (X - mean)/Std
-        - Normalization: X_new = (X - X_min)/(X_max - X_min)
-        - Log: X_new = log(X)
-    """
     if (scaling_method == 'Standardarization'):
         for f in features:
             df[f+'_std']=(df[f]-df[f].mean())/(df[f].std())
@@ -187,28 +101,12 @@ def scale_features(df, features, scaling_method):
     else:
         for f in features:
             #test_homework1.py uses Base-2 logarithm
-            df[f+'_log']=np.log2(df[f]+0.0000001)
-            
+            df[f+'_log']=np.log2(df[f]+0.0000001)            
     #st.write(df)
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df
-
-# Checkpoint - 9
 def create_feature(df, math_select, math_feature_select, new_feature_name):
-    """
-    Create a new feature with name new_feature_name in dataset df with the 
-    mathematical operation math_select (string) on features math_feature_select (list). 
-
-    Input: 
-        - df: the pandas dataframe
-        - math_select: the math operation to perform on the selected features
-        - math_feature_select: the features to be performed on
-        - new_feature_name: the name for the new feature
-    Output: 
-        - df: the udpated dataframe
-    """
     df.dropna()
-
     if math_select == "square root":
         df[new_feature_name] = np.sqrt(df[math_feature_select])
     elif math_select == "add":
@@ -223,22 +121,9 @@ def create_feature(df, math_select, math_feature_select, new_feature_name):
         df[new_feature_name] = np.ceil(df[math_feature_select])
     else:
         df[new_feature_name] = np.floor(df[math_feature_select])
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df
-
-# Checkpoint - 10
 def remove_outliers(df, feature, outlier_removal_method=None):
-    """
-    This function removes the outliers of the given feature(s)
-
-    Input: 
-        - df: pandas dataframe
-        - feature: the feature(s) to remove outliers
-    Output: 
-        - dataset: the updated data that has outliers removed
-        - lower_bound: the lower 25th percentile of the data
-        - upper_bound: the upper 25th percentile of the data
-    """
     df = df.dropna()
     if outlier_removal_method == "IQR":
         q1 = np.percentile(df[feature], 25, axis = 0)
@@ -253,24 +138,9 @@ def remove_outliers(df, feature, outlier_removal_method=None):
         upper_bound = df[feature].mean() + 3 * df[feature].std()
         df = df[(df[feature] > lower_bound) & (df[feature] < upper_bound)]
         df.dropna()
-    st.session_state['score_df'] = df
+    st.session_state['house_df'] = df
     return df, lower_bound, upper_bound
-
-## Checkpoint - 11
 def compute_descriptive_stats(df, stats_feature_select, stats_select):
-    """
-    Compute descriptive statistics stats_select on a feature stats_feature_select 
-    in df. Statistics stats_select include mean, median, max, and min. Return 
-    the results in an output string out_str and dictionary out_dict (dictionary).
-
-    Input: 
-    - df: the pandas dataframe
-    - stats_feature_select: list of feaures to computer statistics on
-    - stats_select: list of mathematical opations
-    Output: 
-    - output_str: string used to display feature statistics
-    - out_dict: dictionary of feature statistics
-    """
     output_str=''
     out_dict = {
         'mean': None,
@@ -295,20 +165,7 @@ def compute_descriptive_stats(df, stats_feature_select, stats_select):
                 output_str = output_str + " " + feature + ' min: %.2f |' % (out_dict["min"])
     st.markdown(output_str)
     return output_str, out_dict
-
-# Checkpoint 12
 def compute_correlation(df, features):
-    """
-    This function computes pair-wise correlation coefficents of X and render summary strings
-
-    Input: 
-        - df: pandas dataframe 
-        - features: a list of feature name (string), e.g. ['gender','lunch']
-    Output: 
-        - correlation: correlation coefficients between one or more features
-        - summary statements: a list of summary strings where each of it is in the format: 
-            '- Features X and Y are {strongly/weakly} {positively/negatively} correlated: {correlation value}'
-    """
     correlation = df[features].corr()
     pairs = combinations(features, 2)
     cor_summary_statements = []
@@ -319,15 +176,12 @@ def compute_correlation(df, features):
         cor_summary_statements.append(summary)
         st.markdown(summary)
     return correlation, cor_summary_statements
-
 ###################### FETCH DATASET #######################
-
-# Use file_uploader to upload the dataset locally
 df=None
 
 filename = 'datasets/study_performance.csv'
-if('score_df' in st.session_state):
-    df = st.session_state['score_df']
+if('house_df' in st.session_state):
+    df = st.session_state['house_df']
 else:
     if(filename):
         df = load_dataset(filename)

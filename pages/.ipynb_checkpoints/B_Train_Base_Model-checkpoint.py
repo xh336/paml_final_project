@@ -14,93 +14,43 @@ import math
 st.title('Train Base Model')
 
 #############################################
-
-# Checkpoint 1
 def split_dataset(X, y, number,random_state=45):
     X_train = []
     X_val = []
     y_train = []
     y_val = []
-
-    # Split dataset
-    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=(number/100), random_state=random_state)
-    
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=(number/100), random_state=random_state)    
     return X_train, X_val, y_train, y_val
-
 class LinearRegression(object) : 
     def __init__(self, learning_rate=0.001, num_iterations=500): 
         self.learning_rate = learning_rate 
         self.num_iterations = num_iterations 
         self.cost_history=[]
-
-    # Checkpoint 2: Hypothetical function h(x) 
     def predict(self, X): 
-        '''
-        Make a prediction using coefficients self.W and input features X
-        Y=X*W
-        
-        Input: X is matrix of column-wise features
-        Output: prediction of house price
-        '''
         self.W=(self.W).reshape(-1,1)
         self.num_examples, _ = X.shape
         X_transform = np.append(np.ones((self.num_examples, 1)), X, axis=1)
         prediction = np.dot(X_transform, self.W)
         return prediction
-
-    # Checkpoint 3: Update weights in gradient descent 
     def update_weights(self):     
-        '''
-        Update weights of regression model by computing the 
-        derivative of the RSS cost function with respect to weights
-        
-        Input: None
-        Output: None
-        ''' 
-        # m: no_of_training_examples, n:no_of_features 
         self.num_examples, _ = (self.X).shape
         X_transform = np.append(np.ones((self.num_examples, 1)), self.X, axis=1)
-        
-        # Make prediction using fitted line
         Y_pred = LinearRegression.predict(self, self.X) 
-        
-        # calculate gradients using RMSE: RMSE = sqrt((1/n)sum_{num_examples} error^2) 
-        # derivative wrt w
         dW = - np.dot((2 * (X_transform.T)), (self.Y - Y_pred)) / self.num_examples
-
         cost = mean_squared_error(self.Y, Y_pred, squared=False)
-        
-        # update weights 
         self.W = self.W - self.learning_rate * dW 
-
-        # store cost
         self.cost_history.append(cost)
-
         return self
-    
-    # Checkpoint 4: Model training 
     def fit(self, X, Y): 
         self.num_examples, self.num_features = X.shape
-
-        # weight, featues X, and output Y initialization 
         self.W = np.zeros(self.num_features + 1) # +1 for const offset 
         X = LinearRegression.normalize(self, X)
         self.X = X
         self.Y = Y
-
-        # Run Gradient Descent
         for _ in range(self.num_iterations): 
             LinearRegression.update_weights(self) 
         return self
-    
-    # Helper function
     def normalize(self, X):
-        '''
-        Standardize features X by column
-
-        Input: X is input features (column-wise)
-        Output: Standardized features by column
-        '''
         X_normalized=X
         try:
             means = np.mean(X, axis=0) #columnwise mean and std
@@ -109,36 +59,12 @@ class LinearRegression(object) :
         except ValueError as err:
             st.write({str(err)})
         return X_normalized
-    
-    # Checkpoint 5: Return regression coefficients
     def get_weights(self, model_name, features):
-        '''
-        This function prints the coefficients of the trained models
-        
-        Input:
-            - 
-        Output:
-            - out_dict: a dicionary contains the coefficients of the selected models, with the following keys:
-            - 'Multiple Linear Regression'
-            - 'Polynomial Regression'
-            - 'Ridge Regression'
-            - 'Lasso Regression'
-        '''
         out_dict = {'Multiple Linear Regression': []}
         for i in range(len(features)):
             out_dict[model_name] = self.W
         return out_dict
-
-# Helper functions
 def load_dataset(filepath):
-    '''
-    This function uses the filepath (string) a .csv file locally on a computer 
-    to import a dataset with pandas read_csv() function. Then, store the 
-    dataset in session_state.
-
-    Input: data is the filename or path to file (string)
-    Output: pandas dataframe df
-    '''
     try:
         data = pd.read_csv(filepath)
         st.session_state['house_df'] = data
@@ -148,7 +74,6 @@ def load_dataset(filepath):
 
 random.seed(10)
 ###################### FETCH DATASET #######################
-# Use file_uploader to upload the dataset locally
 df=None
 
 filename = 'datasets/study_performance.csv'
@@ -161,10 +86,7 @@ else:
 ###################### DRIVER CODE #######################
 
 if df is not None:
-    # Display dataframe as table
     st.dataframe(df.describe())
-
-    # Select variable to predict
     feature_predict_select = st.selectbox(
         label='Select variable to predict',
         options=list(df.select_dtypes(include='number').columns),
@@ -174,7 +96,6 @@ if df is not None:
 
     st.session_state['target'] = feature_predict_select
 
-    # Select input features
     all_features = [f for f in list(df.columns) if f != feature_predict_select]
     feature_input_select = st.multiselect(
         label='Select features for regression input',
@@ -217,12 +138,6 @@ if df is not None:
     test_percentage = ((len(X_val)+len(y_val)) /
                         (len(X_train)+len(X_val)+len(y_train)+len(y_val)))*100
 
-    #regression_methods_options = ['Multiple Linear Regression']
-    # Collect ML Models of interests
-    #regression_model_select = st.multiselect(
-        #label='Select regression model for prediction',
-        #options=regression_methods_options,
-    #)
     regression_model_select = 'Multiple Linear Regression'
     st.write('The model used for this application: {}'.format(
         regression_model_select))

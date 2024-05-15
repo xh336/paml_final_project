@@ -14,15 +14,11 @@ import math
 st.title('Train Comparison Models')
 
 #############################################
-
-# Checkpoint 1
 def split_dataset(X, y, number,random_state=45):
     X_train = []
     X_val = []
     y_train = []
     y_val = []
-
-    # Split dataset
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=(number/100), random_state=random_state)
     
     return X_train, X_val, y_train, y_val
@@ -32,75 +28,31 @@ class LinearRegression(object) :
         self.learning_rate = learning_rate 
         self.num_iterations = num_iterations 
         self.cost_history=[]
-
-    # Checkpoint 2: Hypothetical function h(x) 
     def predict(self, X): 
-        '''
-        Make a prediction using coefficients self.W and input features X
-        Y=X*W
-        
-        Input: X is matrix of column-wise features
-        Output: prediction of house price
-        '''
         self.W=(self.W).reshape(-1,1)
         self.num_examples, _ = X.shape
         X_transform = np.append(np.ones((self.num_examples, 1)), X, axis=1)
         prediction = np.dot(X_transform, self.W)
         return prediction
-
-    # Checkpoint 3: Update weights in gradient descent 
     def update_weights(self):     
-        '''
-        Update weights of regression model by computing the 
-        derivative of the RSS cost function with respect to weights
-        
-        Input: None
-        Output: None
-        ''' 
-        # m: no_of_training_examples, n:no_of_features 
         self.num_examples, _ = (self.X).shape
         X_transform = np.append(np.ones((self.num_examples, 1)), self.X, axis=1)
-        
-        # Make prediction using fitted line
         Y_pred = LinearRegression.predict(self, self.X) 
-        
-        # calculate gradients using RMSE: RMSE = sqrt((1/n)sum_{num_examples} error^2) 
-        # derivative wrt w
         dW = - np.dot((2 * (X_transform.T)), (self.Y - Y_pred)) / self.num_examples
-
         cost = mean_squared_error(self.Y, Y_pred, squared=False)
-        
-        # update weights 
         self.W = self.W - self.learning_rate * dW 
-
-        # store cost
         self.cost_history.append(cost)
-
         return self
-    
-    # Checkpoint 4: Model training 
     def fit(self, X, Y): 
         self.num_examples, self.num_features = X.shape
-
-        # weight, featues X, and output Y initialization 
         self.W = np.zeros(self.num_features + 1) # +1 for const offset 
         X = LinearRegression.normalize(self, X)
         self.X = X
         self.Y = Y
-
-        # Run Gradient Descent
         for _ in range(self.num_iterations): 
             LinearRegression.update_weights(self) 
         return self
-    
-    # Helper function
     def normalize(self, X):
-        '''
-        Standardize features X by column
-
-        Input: X is input features (column-wise)
-        Output: Standardized features by column
-        '''
         X_normalized=X
         try:
             means = np.mean(X, axis=0) #columnwise mean and std
@@ -109,21 +61,7 @@ class LinearRegression(object) :
         except ValueError as err:
             st.write({str(err)})
         return X_normalized
-    
-    # Checkpoint 5: Return regression coefficients
     def get_weights(self, model_name, features):
-        '''
-        This function prints the coefficients of the trained models
-        
-        Input:
-            - 
-        Output:
-            - out_dict: a dicionary contains the coefficients of the selected models, with the following keys:
-            - 'Multiple Linear Regression'
-            - 'Polynomial Regression'
-            - 'Ridge Regression'
-            - 'Lasso Regression'
-        '''
         out_dict = {'Polynomial Regression': [],
                 'Ridge Regression': [],
                    'Lasso Regression': []}
@@ -133,51 +71,24 @@ class LinearRegression(object) :
 class PolynomailRegression(LinearRegression):
     def __init__(self, degree, learning_rate, num_iterations):
         self.degree = degree
-
-        # invoking the __init__ of the parent class
         LinearRegression.__init__(self, learning_rate, num_iterations)
-
-    # Helper function
     def transform(self, X):
-        '''
-        Converts a matrix of features for polynomial  h( x ) = w0 * x^0 + w1 * x^1 + w2 * x^2 + ........+ wn * x^n
-
-        Input:
-            - 
-        Output:
-            -
-        '''
         try:
-            # coverting 1D to 2D
             if X.ndim==1:
                 X = X[:,np.newaxis]
             num_examples, num_features = X.shape
-            features = [np.ones((num_examples, 1))] # for bias, the first column
-            # initialize X_transform
+            features = [np.ones((num_examples, 1))] 
             for j in range(1, self.degree + 1):
-                # For better understanding see doc: https://docs.python.org/3/library/itertools.html#itertools.combinations_with_replacement
-                for combinations in itertools.combinations_with_replacement(range(num_features), j): # this will give us the combination of features
+                for combinations in itertools.combinations_with_replacement(range(num_features), j):
                     feature = np.ones(num_examples)
                     for each_combination in combinations:
                         feature = feature * X[:,each_combination]
-                    features.append(feature[:, np.newaxis]) # collecting list of arrays each array is the feature
-            # concating the list of feature in each column them
+                    features.append(feature[:, np.newaxis]) 
             X_transform = np.concatenate(features, axis=1)
         except ValueError as err:
             st.write({str(err)})
         return X_transform
-    
-    # Checkpoint 6: Model training
     def fit(self, X, Y):
-        '''
-        Use gradient descent to update the weights for self.num_iterations
-
-        Input:
-            - X: Input features X
-            - Y: True values of housing prices
-        Output: None
-        '''
-
         self.num_examples, self.num_features = X.shape
         X_transform = self.transform(X)
         X_normalize = self.normalize(X_transform)
@@ -191,50 +102,23 @@ class PolynomailRegression(LinearRegression):
             cost= np.sqrt(np.sum(np.power(Y-Y_pred,2))/len(Y_pred)) 
             self.cost_history.append(cost)
         return self
-    
-    # Checkpoint 7: Make a prediction with Polynomial Regression model
     def predict(self, X):
-        '''
-        Make a prediction using coefficients self.W and input features X
-        Y=X*W
-        
-        Input: X is matrix of column-wise features
-        Output: prediction of house price
-        '''
         X_transform = self.transform(X)
         X_normalize = LinearRegression.normalize(self, X_transform)
         prediction = X_normalize.dot(self.W)
-        return prediction
-
-# Ridge Regression 
+        return prediction 
 class RidgeRegression(LinearRegression): 
     def __init__(self, learning_rate, num_iterations, l2_penalty): 
         self.l2_penalty = l2_penalty 
-
-        # invoking the __init__ of the parent class
         LinearRegression.__init__(self, learning_rate, num_iterations)
 
-    # Checkpoint 8: Update weights in gradient descent 
     def update_weights(self):      
-        '''
-        Update weights of regression model by computing the 
-        derivative of the RSS + l2_penalty*w cost function with respect to weights
-
-        Input: None
-        Output: None
-        '''
         self.num_examples, self.num_features = (self.X).shape
         X_transform = np.append(np.ones((self.num_examples, 1)), self.X, axis=1)
-        Y_pred = self.predict(self.X) 
-        
+        Y_pred = self.predict(self.X)         
         dW = - ( 2 * ( X_transform.T ).dot( self.Y - Y_pred )  +  2 * self.l2_penalty * self.W ) / self.num_examples
-
-        cost = mean_squared_error(self.Y, Y_pred, squared=False)
-        
-        # update weights 
+        cost = mean_squared_error(self.Y, Y_pred, squared=False)        
         self.W = self.W - self.learning_rate * dW 
-
-        # store cost
         self.cost_history.append(cost)
         return self
 class LassoRegression(LinearRegression):
@@ -242,37 +126,16 @@ class LassoRegression(LinearRegression):
         self.lambda_param = lambda_param
         LinearRegression.__init__(self, learning_rate, num_iterations)
     def update_weights(self):
-        '''
-        Update weights using gradient descent with L1 regularization (Lasso)
-
-        The gradient of the L1 term is the sign of the weight, which needs to be handled separately
-        from the usual gradient of the least squares term.
-        '''
         X_transform = np.hstack((np.ones((self.X.shape[0], 1)), self.X))
         predictions = self.predict(self.X)
-        # Gradient of the loss (without regularization)
         dW = -2 * np.dot(X_transform.T, (self.Y - predictions)) / self.X.shape[0]
-        
-        # Apply L1 regularization, except for the bias term
         dW[1:] += self.lambda_param * np.sign(self.W[1:])
-        
-        # Update weights
         self.W -= self.learning_rate * dW
-        # Compute and store the cost with regularization term
         cost = mean_squared_error(self.Y, predictions, squared=False) + self.lambda_param * np.linalg.norm(self.W[1:], 1)
         self.cost_history.append(cost)
         return self
   
-
 def load_dataset(filepath):
-    '''
-    This function uses the filepath (string) a .csv file locally on a computer 
-    to import a dataset with pandas read_csv() function. Then, store the 
-    dataset in session_state.
-
-    Input: data is the filename or path to file (string)
-    Output: pandas dataframe df
-    '''
     try:
         data = pd.read_csv(filepath)
         st.session_state['house_df'] = data
@@ -294,9 +157,7 @@ else:
 
 ###################### DRIVER CODE #######################
 if df is not None:
-    # Display dataframe as table
     st.dataframe(df.describe())
-
     # Select variable to predict
     feature_predict_select = st.selectbox(
         label='Select variable to predict',

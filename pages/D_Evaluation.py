@@ -12,48 +12,20 @@ import plotly.express as px
 st.title('Model Testing')
 
 #############################################
-# Checkpoint 9 root mean squared error
 def rmse(y_true, y_pred):
-    """
-    This function computes the root mean squared error. 
-    Measures the difference between predicted and 
-    actual values using Euclidean distance.
-
-    Input:
-        - y_true: true targets
-        - y_pred: predicted targets
-    Output:
-        - root mean squared error
-    """
     error=0
     error = np.sqrt(np.sum(np.power(y_pred-y_true,2))/len(y_true))
     return error
-
-#Checkpoint 10 mean absolute error
 def mae(y_true, y_pred):
     error=0
     error = (np.sum(np.abs(y_pred-y_true))) / len(y_true)
     return error
-#Checkpoint 11 r2 score
 def r2(y_true, y_pred):
-    """
-    Compute Coefficient of determination (R2 score). 
-    Rrepresents proportion of variance in predicted values 
-    that can be explained by the input features.
-
-    Input:
-        - y_true: true targets
-        - y_pred: predicted targets
-    Output:
-        - r2 score
-    """
     error=0
     tss = np.sum(np.power(y_true - np.mean(y_pred),2))
     rss = np.sum(np.power(y_true - y_pred,2))
     error = 1 - (rss/tss)
     return error
-
-# Used to access model performance in dictionaries
 METRICS_MAP = {
     'mean_absolute_error': mae,
     'root_mean_squared_error': rmse,
@@ -62,18 +34,6 @@ METRICS_MAP = {
 
 # Helper function
 def compute_eval_metrics(X, y_true, model, metrics):
-    """
-    This function checks the metrics of the models
-
-    Input:
-        - X: pandas dataframe with training features
-        - y_true: pandas dataframe with true targets
-        - model: the model to evaluate
-        - metrics: the metrics to evlauate performance 
-    Output:
-        - metric_dict: a dictionary contains the computed metrics of the selected model, with the following structure:
-            - {metric1: value1, metric2: value2, ...}
-    """
     metric_dict = {}
     y_pred = model.predict(X)
     for metric in metrics:
@@ -82,23 +42,6 @@ def compute_eval_metrics(X, y_true, model, metrics):
 
 
 def plot_learning_curve(X_train, X_val, y_train, y_val, trained_model, metrics, model_name):
-    """
-    This function plots the learning curve. Note that the learning curve is calculated using 
-    increasing sizes of the training samples
-    Input:
-        - X_train: training features
-        - X_val: validation/test features
-        - y_train: training targets
-        - y_val: validation/test targets
-        - trained_model: the trained model to be calculated learning curve on
-        - metrics: a list of metrics to be computed
-        - model_name: the name of the model being checked
-    Output:
-        - fig: the plotted figure
-        - df: a dataframe containing the train and validation errors, with the following keys:
-            - df[metric_fn.__name__ + " Training Set"] = train_errors
-            - df[metric_fn.__name__ + " Validation Set"] = val_errors
-    """
     fig = make_subplots(rows=len(metrics), cols=1,
                         shared_xaxes=True, vertical_spacing=0.1)
     df = pd.DataFrame()
@@ -151,25 +94,12 @@ def plot_residuals(y_true, y_pred, model_name):
                       title=f'Residuals Plot for {model_name}')
     return fig
     
-# Helper function
-def restore_data(df):
-    """
-    This function restores the training and validation/test datasets from the training page using st.session_state
-                Note: if the datasets do not exist, re-split using the input df
 
-    Input: 
-        - df: the pandas dataframe
-    Output: 
-        - X_train: the training features
-        - X_val: the validation/test features
-        - y_train: the training targets
-        - y_val: the validation/test targets
-    """
+def restore_data(df):
     X_train = None
     y_train = None
     X_val = None
     y_val = None
-    # Restore train/test dataset
     if ('X_train' in st.session_state):
         X_train = st.session_state['X_train']
         y_train = st.session_state['y_train']
@@ -178,18 +108,15 @@ def restore_data(df):
         X_val = st.session_state['X_val']
         y_val = st.session_state['y_val']
         st.write('Restored test data ...')
-        #fix below
-    #if('target' in st.session_state):
-        #feature_predict_select = st.session_state['target']
-        #st.write('Restored target ...')
+    if('target' in st.session_state):
+        feature_predict_select = st.session_state['target']
+        st.write('Restored target ...')
     if('feature' in st.session_state):
         feature_input_select = st.session_state['feature']
         st.write('Restored feature input ...')
         
     if (X_train is None):
-        # Select variable to explore
         numeric_columns = list(df.select_dtypes(include='number').columns)
-        # Select variable to predict
         feature_predict_select = st.selectbox(
             label='Select variable to predict',
             options=list(df.select_dtypes(include='number').columns),
@@ -199,7 +126,6 @@ def restore_data(df):
 
         st.session_state['target'] = feature_predict_select
 
-        # Select input features
         feature_input_select = st.multiselect(
             label='Select features for regression input',
             options=[f for f in list(df.select_dtypes(
@@ -217,11 +143,9 @@ def restore_data(df):
         X = df.loc[:, df.columns.isin(feature_input_select)]
         Y = df.loc[:, df.columns.isin([feature_predict_select])]
 
-        # Convert to numpy arrays
         X = np.asarray(X.values.tolist()) 
         Y = np.asarray(Y.values.tolist()) 
 
-        # Split train/test
         st.markdown(
             '### Enter the percentage of test data to use for training the model')
         number = st.number_input(
@@ -232,14 +156,6 @@ def restore_data(df):
     return X_train, X_val, y_train, y_val
 
 def load_dataset(filepath):
-    """
-    This function uses the filepath (string) a .csv file locally on a computer 
-    to import a dataset with pandas read_csv() function. Then, store the 
-    dataset in session_state.
-
-    Input: data is the filename or path to file (string)
-    Output: pandas dataframe df
-    """
     data = pd.read_csv(filepath)
     st.session_state['house_df'] = data
     return data
@@ -257,11 +173,9 @@ else:
 if df is not None:
     # Restore dataset splits
     X_train, X_val, y_train, y_val = restore_data(df)
-
     st.markdown("## Performance Evaluation")
     metric_options = ['mean_absolute_error',
-                      'root_mean_squared_error', 'r2_score']
-    
+                      'root_mean_squared_error', 'r2_score']    
     # Select multiple metrics for evaluation
     metric_select = st.multiselect(
         label='Select metrics for regression model evaluation',
@@ -276,22 +190,11 @@ if df is not None:
     trained_models = [
         model for model in regression_methods_options if model in st.session_state]
     st.session_state['trained_models'] = trained_models
-
     # Select a trained regression model for evaluation
     model_select = st.multiselect(
         label='Select trained regression models for evaluation',
         options=trained_models
     )
-
-    #plot_options = ['Learning Curve', 'Metric Results']
-
-    #review_plot = st.multiselect(
-        #label='Select plot option(s)',
-        #options=plot_options
-    #)
-    
-    #st.write('You selected the following models for evaluation: {}'.format(model_select))
-    #if (model_select and review_plot):
 
     if st.button('Evaluate your selected regression models'):
         for model in model_select:
@@ -331,12 +234,8 @@ if df is not None:
                 st.write(f"**{model_name}**")
                 for metric, score in scores.items():
                     st.write(f"{metric}: {score:.4f}")
+                    
     st.markdown("### Residual Plot Visualization")
-    #residual_model_select = st.multiselect(
-                    #'Select Regression Models For Residual Plot',
-                    #options=trained_models,
-                    #key='res_select'
-            #)
     if st.button('Generate Residual Plot', key = 'res_plot'):
         for model_name in model_select:
             trained_model = st.session_state[model_name]
